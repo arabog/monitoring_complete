@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create EC2Instance
+
+
+Parameters:
+  EnvironmentName:
+      Description: An environment name that will be prefixed to resource names
+      Type: String
+
+
+Resources:
+
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: ansible2
+      ImageId: 'ami-09d56f8956ab235b3' # you may need to find out what instance types are available in your region - use https://cloud-images.ubuntu.com/locator/ec2/
+      InstanceType: t2.micro
+      Tags:
+          - Key: "Name"
+            Value: "Node_exporter"
+
+
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0

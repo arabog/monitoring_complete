@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create EC2Instance
+
+
+Parameters:
+  EnvironmentName:
+      Description: An environment name that will be prefixed to resource names
+      Type: String
+
+
+Resources:
+
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: ansible2
+      ImageId: 'ami-09d56f8956ab235b3' # you may need to find out what instance types are available in your region - use https://cloud-images.ubuntu.com/locator/ec2/
+      InstanceType: t2.micro
+      Tags:
+          - Key: "Name"
+            Value: "Prometheus"
+
+
+  # The below code is the run in terminal to pass the instance PublicIPAddress to the the inventory file for ansible to retrieve later
+  # """aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress'  --filters "Name=tag:Name,Values=ansible-instance" --output text >> inventory"""
+
+
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
